@@ -1,9 +1,35 @@
+import { formatDistanceToNow } from "date-fns";
+import Link from 'next/link';
 import React from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 
 const VideoCard = ({video}:any) => {
     const videos = "/Video/Video.mp4";
+
   return (
-    <div>VideoCard</div>
+   <Link href={`/watch/${video._id}`} className='group'>
+        <div className='space-y-3'>
+            <div className='relative aspect-video rounded-lg overflow-hidden bg-gray-100'>
+                <video src={videos} className="object-cover group-hover:scale-105 transition-transform duration-200"/>
+                <div
+                className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-1 rounded">
+                    10:20
+                </div>
+            </div>
+            <div className="flex gap-3">
+                <Avatar className="w-9 h-9 shrink-0">
+                    <AvatarFallback>{video.videochannel[0]}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm line-clamp-2 group-hover:text-blue-600">{video.videotitle}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{video.videochannel}</p>
+                    <p className="text-sm text-gray-600">{video.views} views {formatDistanceToNow(new Date(video.createdAt),{
+                        addSuffix: true
+                    })}</p>
+                </div>
+            </div>
+        </div>
+   </Link> 
   )
 }
 

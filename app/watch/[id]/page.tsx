@@ -1,5 +1,7 @@
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import VideoInfo from '@/components/ui/VideoInfo';
+import Comments from '@/components/ui/Comments';
+import RelatedVideos from '@/components/ui/RelatedVideos';
 
 const relatedVideos = [
     {
@@ -45,7 +47,12 @@ const WatchPage = async ({ params }: { params: Promise<{ id: string }> }) => {
                     <div className='lg:col-span-2 space-y-4'>
                         <VideoPlayer video={video} />
                         <VideoInfo key={video._id} video={video} />
+                        <Comments />
                     </div>
+                    <aside className='space-y-4'>
+                        <h2 className='text-lg font-semibold'>Related videos</h2>
+                        <RelatedVideos videos={relatedVideos.filter((item) => item._id !== id)} />
+                    </aside>
                 </div>
             </div>
         </div>

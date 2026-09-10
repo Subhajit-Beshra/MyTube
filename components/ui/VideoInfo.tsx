@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback } from './avatar';
 import { Button } from './button';
+import { formatDistanceToNow } from 'date-fns';
 import { Check, Download, MoreHorizontal, Share2, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
 
@@ -13,6 +14,8 @@ type Video = {
     videochannel: string;
     like?: string | number;
     dislike?: string | number;
+    views: string | number;
+    createdAt: string;
 };
 
 const parseCount = (value: string | number | undefined) => {
@@ -31,6 +34,7 @@ const VideoInfo = ({video}: { video: Video }) => {
     const [isDisliked, setIsDisliked] = useState(false);
     const [isMoreOpen, setIsMoreOpen] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
+    const [showFullDescription, setShowFullDescription] = useState(false);
 
     const handleLike = () => {
         if(isLike){
@@ -74,7 +78,7 @@ const VideoInfo = ({video}: { video: Video }) => {
   return (
     <div className='space-y-4'>
         <h1 className='text-xl font-semibold'>{video.videotitle}</h1>
-        <div className='flex flex-wrap items-center justify-between gap-4'>
+        <div className='flex` flex-wrap items-center justify-between gap-4 py-3'>
             <div className='flex items-center gap-3'>
                 <Avatar className='w-10 h-10'>
                     <AvatarFallback>{video.videochannel[0]}</AvatarFallback>
@@ -132,6 +136,20 @@ const VideoInfo = ({video}: { video: Video }) => {
                     )}
                 </div>
             </div>
+        </div>
+        <div className="bg-gray-100 rounded-lg p-4">
+            <div className="flex gap-4 text-sm font-medium mb-2">
+                <span>{video.views.toLocaleString()}</span>
+                 <span>{formatDistanceToNow(new Date(video.createdAt))} ago</span>
+            </div>
+            <div className={`text-sm ${showFullDescription ? "" : "line-clamp-3"}`}>
+                <p>
+                    Sample video description. This would contain the actual video description from the database.
+                </p>
+            </div>
+            <Button variant="ghost" size="sm" className="mt-2 p-0 h-auto font-medium" onClick={() => setShowFullDescription(!showFullDescription)}>
+                {showFullDescription ? 'show less' : 'show more'}
+            </Button>
         </div>
     </div>
   )

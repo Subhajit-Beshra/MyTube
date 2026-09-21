@@ -12,29 +12,29 @@ const Sidebar = () => {
   return (
     <aside className='w-50 border-r min-h-screen p-2'>
         <nav className='flex flex-col gap-4'>
-            <Link href="/">
-                <button className='flex flex-row items-center gap-3 cursor-pointer'><Home />Home</button>
+            <Link href="/" className='flex flex-row items-center gap-3 cursor-pointer'>
+                <Home />Home
             </Link>
-            <Link href="/explore">
-                <button className='flex flex-row items-center gap-3 cursor-pointer'><Compass />Explore</button>
+            <Link href="/explore" className='flex flex-row items-center gap-3 cursor-pointer'>
+                <Compass />Explore
             </Link>
-            <Link href="/subscription">
-                <button className='flex flex-row items-center gap-3 cursor-pointer'><PlaySquare />Subscription</button>
+            <Link href="/subscription" className='flex flex-row items-center gap-3 cursor-pointer'>
+                <PlaySquare />Subscription
             </Link>
             {user && (
                 <>
                     <div className='flex flex-col mt-3 border-t gap-4 pt-4'>
-                        <Link href='/history'>
-                            <button className='flex flex-row items-center gap-3 cursor-pointer'><History />History</button>
+                        <Link href='/history' className='flex flex-row items-center gap-3 cursor-pointer'>
+                            <History />History
                         </Link>
-                        <Link href='/liked-videos'>
-                            <button className='flex flex-row items-center gap-3 cursor-pointer'><ThumbsUp />Liked videos</button>
+                        <Link href='/liked' className='flex flex-row items-center gap-3 cursor-pointer'>
+                            <ThumbsUp />Liked videos
                         </Link>
-                        <Link href='/watch-later'>
-                            <button className='flex flex-row items-center gap-3 cursor-pointer'><Clock />Watch later</button>
+                        <Link href='/watch-later' className='flex flex-row items-center gap-3 cursor-pointer'>
+                            <Clock />Watch later
                         </Link>
-                        <Link href='/channel/${user.id}'>
-                            <button className='flex flex-row items-center gap-3 cursor-pointer'><User />Your channel</button>
+                        <Link href={`/channel/${user.id}`} className='flex flex-row items-center gap-3 cursor-pointer'>
+                            <User />Your channel
                         </Link>
                     </div>
                 </>

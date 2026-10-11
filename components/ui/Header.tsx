@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ChannelDialog from "@/components/ui/ChannelDialog";
 
 const Header = () => {
   const user = {
@@ -59,10 +60,11 @@ const Header = () => {
       </div>
 
       {/* Search Section */}
-      <form className="mx-6 flex max-w-2xl flex-1 items-center gap-3">
+      <form action="/search" className="mx-6 flex max-w-2xl flex-1 items-center gap-3">
         <div className="flex flex-1">
           <Input
             type="search"
+            name="q"
             placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -91,8 +93,15 @@ const Header = () => {
         
         {user ?
         (<>
-            <button className="pointer-cursor"><VideoIcon /></button>
-            <button className="pointer-cursor"><Bell /></button>
+            <ChannelDialog
+              trigger={
+                <button type="button" className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium hover:bg-gray-100">
+                  <VideoIcon className="h-4 w-4" />
+                  Create
+                </button>
+              }
+            />
+            <button type="button" className="pointer-cursor rounded-full p-2 hover:bg-gray-100"><Bell /></button>
             <DropdownMenu>
                 <DropdownMenuTrigger>
                         <Avatar className=''>
@@ -116,6 +125,13 @@ const Header = () => {
                         <Link href="/watch-later">Watch Later</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <ChannelDialog
+                      trigger={
+                        <span className="flex w-full items-center gap-2 px-1 py-1 text-sm text-gray-700">
+                          Create channel
+                        </span>
+                      }
+                    />
                     <DropdownMenuItem>
                         Signout
                     </DropdownMenuItem>

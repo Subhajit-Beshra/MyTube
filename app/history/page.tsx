@@ -1,13 +1,27 @@
-import { Suspense } from 'react'
-import HistoryContent from '@/components/ui/HistoryContent'
+import Header from "@/components/ui/Header";
+import LocalLibrary from "@/components/ui/LocalLibrary";
+import Sidebar from "@/components/ui/Sidebar";
+import ProtectedRoute from "@/components/ui/ui/ProtectedRoute";
+
 
 export default function HistoryPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Watch History</h1>
-      <Suspense fallback={<div>Loading history...</div>}>
-        <HistoryContent />
-      </Suspense>
-    </div>
-  )
+    <ProtectedRoute>
+      <div className="min-h-screen bg-[#f5f6fa] text-slate-900">
+        <Header />
+        <div className="mx-auto flex max-w-[1800px]">
+          <Sidebar />
+          <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">
+              Your library
+            </p>
+            <h1 className="mb-6 mt-1 text-2xl font-extrabold sm:text-3xl">
+              Watch history
+            </h1>
+            <LocalLibrary kind="history" />
+          </main>
+        </div>
+      </div>
+    </ProtectedRoute>
+  );
 }

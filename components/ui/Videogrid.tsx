@@ -1,44 +1,33 @@
-import React from 'react'
-import VideoCard from './VideoCard'
+"use client";
 
-const Videogrid = () => {
-    const videos = [
-        {
-            _id: "1",
-            videotitle: "Teacher's day Celebration",
-            filename: "Video.mp4",
-            filetype: "Video/mp4",
-            filepath: "/Video/Video.mp4",
-            filesize: "13.5 MB",
-            videochannel: "La familia",
-            like: "1250",
-            dislike: "121",
-            views: "45000",
-            uploader: "Sick Boy",
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-        },
-        {
-            _id: "2",
-            videotitle: "Creating an AI powered healthcare app",
-            filename: "VitaCare.mp4",
-            filetype: "Video/mp4",
-            filepath: "/Video/VitaCare.mp4",
-            filesize: "34.8 MB",
-            videochannel: "Developer's Development",
-            like: "1.2 M",
-            dislike: "200",
-            views: "4.6 M",
-            uploader: "Hacker",
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-        }
-    ]
+import { useState } from "react";
+import CategoryTabs from "./CategoryTabs";
+import VideoCard from "./VideoCard";
+import type { Video } from "@/lib/videos";
+
+const Videogrid = ({ videos, error }: { videos: Video[]; error?: string }) => {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const categories = ["All", ...new Set(videos.map((video) => video.category))];
+  const filteredVideos = videos.filter(
+    (video) => activeCategory === "All" || video.category === activeCategory,
+  );
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {videos.map((video) => 
-            <VideoCard key={video._id} video ={video} />
-        )}
-    </div>
-  )
-}
+    <>
+      {error && (
+        <p role="alert" className="mb-5 rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {error}
+        </p>
+      )}
+      <CategoryTabs categories={categories} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+      <section aria-label={`${activeCategory} videos`} className="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {filteredVideos.map((video) => <VideoCard key={video._id} video={video} />)}
+      </section>
+      {!error && filteredVideos.length === 0 && (
+        <p className="py-16 text-center text-sm text-slate-500">No popular videos are available right now.</p>
+      )}
+    </>
+  );
+};
 
-export default Videogrid
+export default Videogrid;

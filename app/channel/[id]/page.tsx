@@ -6,11 +6,11 @@ export default async function ChannelPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
 
   return (
-    <div className="min-h-screen p-1">
+    <div className="min-h-screen bg-[#f8f9fc] text-slate-900">
       <Header />
-      <div className="flex">
+      <div className="mx-auto flex max-w-[1900px]">
         <Sidebar />
-        <main className="min-w-0 flex-1 p-4 md:p-6">
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-7 md:py-8">
           <ChannelContent channelId={id} />
         </main>
       </div>

@@ -1,33 +1,30 @@
 import Link from "next/link";
+import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
+import type { Video } from "@/lib/videos";
 
 interface RelatedVideosProps {
-  videos: Array<{
-    _id: string;
-    videotitle: string;
-    videochannel: string;
-    views: string | number;
-    createdAt: string;
-    filepath: string;
-  }>;
+  videos: Video[];
 }
 
 export default function RelatedVideos({ videos }: RelatedVideosProps) {
+  const youtubeVideos = videos.filter(
+    (video): video is Video & { youtubeId: string } =>
+      typeof video.youtubeId === "string" && video.youtubeId.length > 0,
+  );
+
   return (
     <div className="space-y-2">
-      {videos.map((video) => (
+      {youtubeVideos.map((video) => (
         <Link
-          key={video._id}
-          href={`/watch/${video._id}`}
+          key={video.youtubeId}
+          href={`/watch/${video.youtubeId}`}
           className="flex gap-2 group"
         >
-          <div className="relative w-40 aspect-video bg-gray-100 rounded overflow-hidden shrink-0">
-            <video
-              src={video.filepath}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-200"
-              muted
-              preload="metadata"
-            />
+          <div className="relative aspect-video w-40 shrink-0 overflow-hidden rounded bg-gray-100">
+            {video.thumbnailUrl && (
+              <Image src={video.thumbnailUrl} alt="" fill unoptimized sizes="160px" className="object-cover" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-medium text-sm line-clamp-2 group-hover:text-blue-600">
@@ -35,7 +32,7 @@ export default function RelatedVideos({ videos }: RelatedVideosProps) {
             </h3>
             <p className="text-xs text-gray-600 mt-1">{video.videochannel}</p>
             <p className="text-xs text-gray-600">
-              {typeof video.views === "number" ? video.views.toLocaleString() : video.views} views •{" "}
+              {video.views} views •{" "}
               {formatDistanceToNow(new Date(video.createdAt))} ago
             </p>
           </div>

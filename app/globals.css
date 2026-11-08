@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -115,6 +115,45 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+.dark body {
+  background-color: #0b1220;
+  color: #e2e8f0;
+}
+
+.dark header {
+  border-color: #334155;
+  background-color: rgb(15 23 42 / 95%);
+}
+
+.dark [class~="bg-white"],
+.dark [class*="bg-[#f5f6fa]"],
+.dark [class*="bg-[#f8f9fc]"] {
+  background-color: #111827 !important;
+}
+
+.dark [class~="bg-gray-100"],
+.dark [class~="bg-slate-50"] {
+  background-color: #1e293b !important;
+}
+
+.dark [class~="text-slate-900"],
+.dark [class~="text-slate-800"],
+.dark [class~="text-gray-900"] {
+  color: #f1f5f9 !important;
+}
+
+.dark [class~="text-slate-600"],
+.dark [class~="text-slate-500"],
+.dark [class~="text-gray-600"],
+.dark [class~="text-gray-500"] {
+  color: #cbd5e1 !important;
+}
+
+.dark [class*="border-slate-"],
+.dark [class*="border-gray-"] {
+  border-color: #334155 !important;
 }
 
 @layer base {

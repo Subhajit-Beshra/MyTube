@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { formatDistanceToNow } from "date-fns";
 import {
   DropdownMenu,
@@ -9,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { MoreVertical, X, Clock } from "lucide-react";
 import React, { useEffect, useState } from 'react';
 
@@ -99,7 +97,7 @@ const HistoryContent = () => {
       <div className="text-center py-12">
         <Clock className="w-16 h-16 mx-auto text-gray-400 mb-4" />
         <h2 className="text-xl font-semibold mb-2">Keep track of what you watch</h2>
-        <p className="text-gray-600">Watch history isn't viewable when signed out.</p>
+        <p className="text-gray-600">Watch history isn&apos;t viewable when signed out.</p>
       </div>
     )
   }

@@ -173,7 +173,7 @@ const getTrustedDevice = async (user, req) => {
       $set: { lastUsedAt: new Date() },
       $max: { expiresAt: new Date(Date.now() + trustedDeviceCookieOptions.maxAge) },
     },
-    { new: true },
+    { returnDocument: "after" },
   );
 };
 
@@ -426,7 +426,7 @@ export const verifyOtp = async (req, res) => {
         attempts: { $lt: 5 },
       },
       { $inc: { attempts: 1 } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!challenge) {
       const current = await AuthChallenge.findOne({ challengeId, usedAt: null }).select(
@@ -448,7 +448,7 @@ export const verifyOtp = async (req, res) => {
         expiresAt: { $gt: new Date() },
       },
       { $set: { usedAt: new Date() } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!claimed) {
       return res.status(409).json({ message: "This verification code has already been used." });
@@ -491,7 +491,7 @@ export const resendOtp = async (req, res) => {
         $set: { resendAfter: new Date(now.getTime() + 60 * 1000) },
         $inc: { resendCount: 1 },
       },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!challenge) {
       const current = await AuthChallenge.findOne({ challengeId, usedAt: null }).select(
@@ -520,7 +520,7 @@ export const resendOtp = async (req, res) => {
           cleanupAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
       },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!updated) {
       return res.status(409).json({ message: "This verification request has already been completed." });
@@ -670,7 +670,7 @@ export const updatePreferences = async (req, res) => {
     const user = await users.findByIdAndUpdate(
       req.userId,
       { $set: { themePreference } },
-      { new: true, runValidators: true },
+      { returnDocument: "after", runValidators: true },
     );
     if (!user) return res.status(404).json({ message: "User not found." });
     user.lastLoginTheme =

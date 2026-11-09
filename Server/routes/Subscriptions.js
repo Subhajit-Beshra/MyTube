@@ -141,7 +141,7 @@ export async function handleRazorpayWebhook(req, res) {
           failureMessage: "",
         },
       },
-      { new: true, runValidators: true },
+      { returnDocument: "after", runValidators: true },
     );
     if (!updatedPayment) {
       const current = await Payment.findById(payment._id).select("status paymentId paidAt");
@@ -368,7 +368,7 @@ router.post("/failed", requireAuth, checkoutLimiter, async (req, res) => {
           failureMessage: typeof reason === "string" ? reason.slice(0, 200) : "",
         },
       },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!payment) {
       const existing = await Payment.findOne({ orderId, user: req.userId });

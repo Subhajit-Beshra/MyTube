@@ -268,7 +268,7 @@ router.post("/", requireAuth, async (req, res) => {
           channelCreatedAt: new Date(),
         },
       },
-      { new: true, runValidators: true },
+      { returnDocument: "after", runValidators: true },
     );
     if (!user) {
       return res.status(409).json({ message: "You already have a channel." });

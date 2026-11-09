@@ -217,7 +217,7 @@ router.patch("/reports/:type/:reportId", requireStaff, async (req, res) => {
               actor: req.userId,
             },
           },
-          { upsert: true, new: true, runValidators: true },
+          { upsert: true, returnDocument: "after", runValidators: true },
         );
         await StaffAction.create({
           actor: req.userId,

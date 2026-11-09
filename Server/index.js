@@ -15,6 +15,7 @@ import notificationRoutes from "./routes/Notifications.js";
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
 
 const allowedOrigins = new Set(
   (process.env.CLIENT_URL || "http://localhost:3000,http://127.0.0.1:3000")

@@ -76,7 +76,7 @@ async function reserveQuota(userId, dayKey) {
       downloadQuotaUsed: { $lt: limit },
     },
     { $inc: { downloadQuotaUsed: 1 } },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!updatedUser) {
     return {
@@ -93,7 +93,7 @@ async function failReservation(download, allowStarted = true) {
   const updated = await Download.findOneAndUpdate(
     filter,
     { $set: { status: "failed" } },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (updated) {
     await users.updateOne(
@@ -205,7 +205,7 @@ router.post("/:videoId/start", startLimiter, async (req, res) => {
             },
             $inc: { attempt: 1 },
           },
-          { new: true },
+          { returnDocument: "after" },
         );
         if (!download) {
           await users.updateOne({ _id: req.userId }, { $inc: { downloadQuotaUsed: -1 } });
@@ -260,7 +260,7 @@ router.get("/:downloadId/file", async (req, res) => {
         startedAt: null,
       },
       { $set: { startedAt: new Date() } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!download) {
       return res.status(409).json({ message: "This download is not available or has already started." });

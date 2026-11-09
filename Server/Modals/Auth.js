@@ -53,6 +53,11 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
+    channelCreatedAt: {
+      type: Date,
+      default: null,
+    },
+
     description: {
       type: String,
     },

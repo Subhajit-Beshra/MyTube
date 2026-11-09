@@ -11,11 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/AuthContext";
-import { Bell, Compass, Menu, PlaySquare, Search, Video } from "lucide-react";
+import { Compass, Menu, PlaySquare, Search, Video } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
+import NotificationsBell from "@/components/ui/NotificationsBell";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,6 +35,7 @@ const Header = () => {
 
   const displayName = user?.name || user?.channelname || "MyTube User";
   const avatarFallback = displayName.charAt(0).toUpperCase();
+  const hasChannel = Boolean(user?.hasChannel || user?.channelname);
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
@@ -84,26 +86,29 @@ const Header = () => {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <ThemeSwitcher />
-          <ChannelDialog
-            trigger={
-              <button
-                type="button"
-                aria-label="Create a channel"
-                className="flex h-9 items-center gap-2 rounded-full bg-indigo-50 px-3 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
-              >
-                <Video className="size-4" />
-                <span className="hidden sm:inline">Create</span>
-              </button>
-            }
-          />
+          {hasChannel && user ? (
+            <Link
+              href={`/channel/${encodeURIComponent(user.id)}`}
+              className="rounded-full bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
+            >
+              My channel
+            </Link>
+          ) : (
+            <ChannelDialog
+              trigger={
+                <button
+                  type="button"
+                  aria-label="Create a channel"
+                  className="flex h-9 items-center gap-2 rounded-full bg-indigo-50 px-3 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                >
+                  <Video className="size-4" />
+                  <span className="hidden sm:inline">Create</span>
+                </button>
+              }
+            />
+          )}
 
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
-          >
-            <Bell className="size-5" />
-          </button>
+          <NotificationsBell />
 
           {loading ? (
             <div className="size-9 animate-pulse rounded-full bg-slate-200" />
@@ -131,9 +136,11 @@ const Header = () => {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={() => router.push(`/channel/${user.id}`)}>
-                  My channel
-                </DropdownMenuItem>
+                {hasChannel && (
+                  <DropdownMenuItem onClick={() => router.push(`/channel/${user.id}`)}>
+                    My channel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => router.push("/history")}>
                   History
                 </DropdownMenuItem>
@@ -150,17 +157,6 @@ const Header = () => {
                 )}
 
                 <DropdownMenuSeparator />
-
-                <ChannelDialog
-                  trigger={
-                    <button
-                      type="button"
-                      className="w-full px-2 py-1.5 text-left text-sm hover:bg-slate-100"
-                    >
-                      Create a channel
-                    </button>
-                  }
-                />
 
                 <DropdownMenuItem
                   onClick={() => void handleLogout()}

@@ -9,6 +9,8 @@ import downloadRoutes from "./routes/Downloads.js";
 import commentRoutes from "./routes/Comments.js";
 import meetingRoutes from "./routes/Meetings.js";
 import moderationRoutes from "./routes/Moderation.js";
+import channelRoutes, { channelUploadDirectory } from "./routes/Channels.js";
+import notificationRoutes from "./routes/Notifications.js";
 
 dotenv.config();
 
@@ -39,6 +41,7 @@ app.post(
 );
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use("/uploads", express.static(channelUploadDirectory));
 
 app.get("/", (req, res) => {
   res.send("Youtube backend is working.");
@@ -58,6 +61,8 @@ app.use("/downloads", downloadRoutes);
 app.use("/comments", commentRoutes);
 app.use("/meetings", meetingRoutes);
 app.use("/moderation", moderationRoutes);
+app.use("/channels", channelRoutes);
+app.use("/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 const dbURL = process.env.DB_URL;

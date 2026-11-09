@@ -57,6 +57,7 @@ const safeUser = (user) => ({
   name: user.name,
   image: user.image,
   channelname: user.channelname,
+  hasChannel: Boolean(user.channelname?.trim()),
   description: user.description,
   plan: user.plan,
   subscriptionStatus: user.subscriptionStatus,
@@ -622,6 +623,11 @@ export const updateprofile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         message: "User not found.",
+      });
+    }
+    if (!user.channelname?.trim()) {
+      return res.status(409).json({
+        message: "Create a channel before updating its profile.",
       });
     }
 

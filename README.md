@@ -1,66 +1,204 @@
 # MyTube
 
-MyTube is a Next.js video discovery app with an Express/Mongoose API for authentication, comments, moderation, sample-video downloads, membership payments, and LiveKit meetings.
+MyTube is a video discovery and creator platform built with Next.js, React, Express, and MongoDB. Browse videos, create a channel, upload videos, subscribe to MyTube creators, and get in-app notifications when they publish.
 
-## Run locally
+> **Project status:** This is an active project. Some larger feature areas—such as video calls, subscriptions, downloads, the player, account security, and comments—are implemented in part. See [Current capabilities and limitations](#current-capabilities-and-limitations) before relying on them as production-ready.
 
-1. Copy `.env.example` to `.env.local` and configure the YouTube API key and Google OAuth client ID as needed.
-2. Copy `Server/.env.example` to `Server/.env`, set `DB_URL` and a long random `JWT_SECRET`, then configure the integrations described below.
-3. In one terminal run `cd Server && npm start`.
-4. In another terminal run `npm run dev`.
+## Features
 
-The backend uses HTTP-only JWT and trusted-device cookies. Set `CLIENT_URL` to a comma-separated allowlist of frontend origins. Do not commit `.env.local` or `Server/.env`.
+- Browse, search, and watch platform sample videos and YouTube results.
+- Create a channel with an editable channel name, then upload and manage its video list.
+- Subscribe to MyTube channels and receive in-app notifications for new uploads.
+- Use a custom video player for platform-hosted videos.
+- Sign in with email/password or Google, with email OTP verification and trusted-device support.
+- Join LiveKit video meetings.
+- Use comments, translations, reports, staff moderation, downloads, and membership plans.
 
-## Integrations and credentials
+## Tech stack
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS
+- **Backend:** Express 5, Node.js, MongoDB, Mongoose
+- **Video meetings:** LiveKit
+- **Payments:** Razorpay test mode
+- **Email OTP:** Resend
+- **Video search and translation:** YouTube Data API and Google Cloud Translation API
+
+## Requirements
+
+- Node.js 20.9 or newer and npm
+- MongoDB (local or hosted)
+- Optional provider accounts and credentials for Google sign-in, YouTube search, email OTP, translation, Razorpay, and LiveKit
+
+## Getting started
+
+### 1. Install dependencies
+
+From the project root:
+
+```sh
+npm install
+cd Server
+npm install
+cd ..
+```
+
+### 2. Configure the frontend
+
+Copy the example file:
+
+```sh
+cp .env.example .env.local
+```
+
+Set values as needed:
+
+| Variable | Required for | Example |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | Frontend-to-backend requests | `http://localhost:5000` |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google sign-in button | Google OAuth client ID |
+| `YOUTUBE_API_KEY` | YouTube video search and recommendations | YouTube Data API v3 key |
+
+YouTube search will be unavailable until a valid API key is configured. Keep provider secrets out of `NEXT_PUBLIC_*` variables.
+
+### 3. Configure the backend
+
+Copy the backend example file:
+
+```sh
+cp Server/.env.example Server/.env
+```
+
+At minimum, configure:
+
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | Backend HTTP port (defaults to `5000`) |
+| `CLIENT_URL` | Comma-separated frontend origins allowed by CORS |
+| `DB_URL` | MongoDB connection string |
+| `JWT_SECRET` | Long, random signing key for authentication cookies |
+| `GOOGLE_CLIENT_ID` | Google ID-token verification; match the frontend client ID |
+
+Optional integrations are described below. Keep `Server/.env` private and never commit real credentials.
+
+### 4. Start the app
+
+Run the backend and frontend in separate terminals:
+
+```sh
+cd Server
+npm run dev
+```
+
+```sh
+npm run dev
+```
+
+The frontend is available at [http://localhost:3000](http://localhost:3000), and the backend health endpoint is [http://localhost:5000/health](http://localhost:5000/health).
+
+## Channels and uploads
+
+1. Sign in, then select **Create** in the header.
+2. The channel name starts with your account name; edit it if you want, then confirm.
+3. Open your channel and select **Upload video**.
+4. Upload an MP4, M4V, MOV, OGV, or WebM file up to 500 MiB.
+
+Video files are stored on the backend host in `Server/uploads`; metadata is stored in MongoDB. Back up both. Use persistent storage when deploying the backend—ephemeral filesystems can erase uploads when an instance restarts or is replaced. Uploaded files are served by the backend and are not copied into the Git repository.
+
+Signed-in viewers can subscribe to MyTube channels. A channel upload creates an in-app notification for its subscribers. The header bell shows unread notifications and refreshes periodically while the page is open. This does not monitor uploads from external YouTube channels.
+
+## Optional integrations
+
+### Google sign-in
+
+Create a Google OAuth client and configure the same client ID in:
+
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in `.env.local`
+- `GOOGLE_CLIENT_ID` in `Server/.env`
+
+Configure authorized origins and redirect settings in Google Cloud to match your local and deployed frontend.
 
 ### Email OTP and trusted devices
 
-Email verification uses the Resend API. Set `RESEND_API_KEY` and `EMAIL_FROM` in `Server/.env`, and verify the sender domain in Resend. Registration and sign-in from an untrusted browser require a six-digit code; codes expire after five minutes, are limited to five attempts, and can be resent after 60 seconds (with an additional IP rate limit). A trusted-device cookie lasts 30 days. Without email configuration, verification returns an explicit service-unavailable error; authentication is not silently bypassed.
+Email OTP uses Resend. Set `RESEND_API_KEY` and `EMAIL_FROM` in `Server/.env`, and verify the sender domain with Resend. OTP challenges expire after five minutes and are limited to five attempts. A trusted-device cookie lasts 30 days. Without email delivery configured, OTP-protected registration and sign-in cannot be completed.
 
-### Location permission
+### YouTube search
 
-The Security page uses the browser's native Geolocation API only after the user clicks the permission check. MyTube discards the resulting coordinates, does not send them to the API, and does not store them. Browser permission denial, unavailable location services, and timeouts are surfaced. No location-provider credential is needed.
+Enable the YouTube Data API v3 and set `YOUTUBE_API_KEY` in `.env.local`. The key is used by the server-side YouTube integration; do not expose it through client-side code.
 
 ### Comment translation
 
-Enable Google Cloud Translation API v2 and set `GOOGLE_TRANSLATE_API_KEY` in `Server/.env`. The key stays server-side. Translation is available for English, Spanish, French, German, Hindi, Bengali, Japanese, Korean, Portuguese, and Arabic; provider failures are shown per comment.
+Enable Google Cloud Translation API v2 and set `GOOGLE_TRANSLATE_API_KEY` in `Server/.env`. The key remains server-side. Supported target languages are English, Spanish, French, German, Hindi, Bengali, Japanese, Korean, Portuguese, and Arabic.
 
-### Staff moderation
+### Razorpay test payments
 
-The `/staff` dashboard requires a user with `role: "staff"`; all moderation APIs enforce the role on the backend. Assign the role only to trusted staff using MongoDB administration, for example:
+Set `RAZORPAY_KEY_ID` to a test key beginning with `rzp_test_`, along with `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET` in `Server/.env`. Configure the Razorpay test webhook to call:
 
-```javascript
-db.users.updateOne(
-  { email: "staff@example.com" },
-  { $set: { role: "staff" } },
-)
+```text
+https://<your-api-host>/subscriptions/webhook
 ```
 
-The dashboard handles comment, video, and account reports; comment/video hide and restore actions; and account suspension/restoration. Hiding a YouTube video only blocks it within MyTube; it does not remove content from YouTube.
+Enable the `payment.captured` and `payment.failed` events and use the same webhook secret. The backend verifies payment data before activating a plan and intentionally rejects live Razorpay keys.
 
-### Razorpay test mode
+Plan prices are configured in paise with `BRONZE_PRICE_PAISE`, `SILVER_PRICE_PAISE`, and `GOLD_PRICE_PAISE`. Daily download limits are configurable with `FREE_DOWNLOAD_LIMIT` and the plan-specific `*_DOWNLOAD_LIMIT` variables. Memberships currently last 30 days.
 
-Set `RAZORPAY_KEY_ID` to an `rzp_test_...` key, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` in `Server/.env`. Configure the Razorpay test webhook to call `https://<your-api-host>/subscriptions/webhook` for `payment.captured` and `payment.failed`, using the same webhook secret. The backend verifies the HMAC over the raw request body and reconciles only matching stored orders and captured payments. Frontend success callbacks alone never activate a plan. The API intentionally rejects live Razorpay keys.
+### LiveKit meetings
 
-Plan prices use paise and are configurable with `*_PRICE_PAISE`; plan download limits use `*_DOWNLOAD_LIMIT`. Memberships last 30 days. Quotas use the Asia/Kolkata calendar day.
+Set `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and `LIVEKIT_URL` in `Server/.env`. `LIVEKIT_URL` is the browser WebSocket endpoint, for example `wss://your-project.livekit.cloud`. The backend infers the HTTPS management API URL; set `LIVEKIT_API_URL` only when an override is required. Never expose the API secret to the browser.
 
-### LiveKit
+Calls require a valid LiveKit deployment and browser camera/microphone permissions.
 
-Set `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, and `LIVEKIT_URL` in `Server/.env`. `LIVEKIT_URL` is the browser WebSocket endpoint (`wss://`); the backend infers the matching HTTPS management API URL unless `LIVEKIT_API_URL` is explicitly set (that override must use `http://` or `https://`, not `wss://`). The API creates short-lived, room-scoped tokens and grants room-admin rights only to the host. Keep the API secret server-side; it is never sent to the browser. Actual room connectivity requires a configured LiveKit deployment and working browser camera/microphone permissions.
+## Main pages
 
-### Video downloads
+| Route | Purpose |
+| --- | --- |
+| `/` | Home and video discovery |
+| `/explore` | Explore videos |
+| `/search` | Search |
+| `/watch/[id]` | Watch a video |
+| `/channel/[id]` | View a channel and its uploads |
+| `/subscriptions` | View and manage followed channels |
+| `/meetings` | Create or join meetings |
+| `/downloads` | View download activity |
+| `/plans` | Compare membership plans and view billing details |
+| `/security` | Account security and preferences |
+| `/staff` | Staff moderation dashboard |
 
-Downloads are enabled only for the four platform-hosted sample MP4s in `public/Video`. YouTube downloads remain disabled in the UI and rejected by the backend allowlist. Download reservations and daily quotas are account-scoped.
+## Current capabilities and limitations
 
-## Tests and verification
+The application includes useful foundations for the following areas, but not every item in the original product specifications is implemented:
 
-Run:
+- **Video meetings:** LiveKit rooms, meeting links, participant controls, and some host moderation are available. In-call chat/file sharing, co-host roles, recording, full device/reconnection handling, and end-to-end encryption are not complete.
+- **Downloads:** Plan-based daily quotas and protected sample-video downloads are available. Downloads are limited to the platform sample videos; YouTube downloads are not supported. The full requested audit trail and registered-device enforcement are not implemented.
+- **Memberships:** Free/Bronze/Silver/Gold plans and Razorpay test payment verification are available. Quarterly/yearly billing, automatic renewals, invoices/receipt emails, and comprehensive premium-content gating are not complete.
+- **Video player:** Platform videos have custom playback controls and saved progress. Features such as hover-preview thumbnails, subtitles, quality selection, and autoplay countdown are not complete. YouTube videos use the YouTube embed.
+- **Account security:** Email OTP, trusted-device cookies, login history, and theme preferences are available. Risk checks for new IP/location, geographic login details, and full session/device management are not complete.
+- **Comments:** Commenting, replies, reactions, translation, reports, and basic moderation protections are available. CAPTCHA, a time-limited edit policy, location display, and all requested sorting/spam controls are not complete.
+- **Notifications:** In-app upload notifications currently cover MyTube channels only; they do not track external YouTube channel uploads and are not push/email notifications.
+
+Provider credentials, a reachable MongoDB instance, network permissions, and deployment storage may be required for end-to-end behavior. Passing local tests does not verify external provider accounts or production deployment.
+
+## Development and tests
+
+Run frontend checks from the repository root:
 
 ```sh
-cd Server && npm test
-cd .. && npm run lint
+npm run lint
 npx tsc --noEmit
 npm run build
 ```
 
-The backend suite covers OTP generation/hash/delivery handling, location permission outcomes, translation provider behavior, moderation authorization/validation, Razorpay raw-body signatures, LiveKit token claims, plan configuration, and the sample-video download allowlist. External provider calls, actual Razorpay checkout/webhook delivery, MongoDB-backed moderation flows, and live LiveKit room joining/leaving require configured credentials/services and were not network-tested by these unit tests.
+Run the backend unit tests:
+
+```sh
+cd Server
+npm test
+```
+
+## Security and operations
+
+- Do not commit `.env.local`, `Server/.env`, API keys, payment secrets, or uploaded media.
+- Use a unique, long `JWT_SECRET` outside local development.
+- Restrict `CLIENT_URL` to trusted frontend origins.
+- Use HTTPS for deployed sites and configure secure cookies appropriately.
+- Back up MongoDB and `Server/uploads` together.
+- The staff role should only be assigned to trusted accounts through controlled database administration.

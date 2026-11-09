@@ -8,6 +8,7 @@ export type AuthUser = {
   name?: string;
   image?: string;
   channelname?: string;
+  hasChannel?: boolean;
   description?: string;
   plan?: "Free" | "Bronze" | "Silver" | "Gold";
   subscriptionStatus?: "free" | "active" | "canceled" | "expired";

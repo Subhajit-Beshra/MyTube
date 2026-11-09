@@ -20,7 +20,7 @@ MyTube is a video discovery and creator platform built with Next.js, React, Expr
 - **Backend:** Express 5, Node.js, MongoDB, Mongoose
 - **Video meetings:** LiveKit
 - **Payments:** Razorpay test mode
-- **Email OTP:** Resend
+- **Email OTP:** Brevo
 - **Video search and translation:** YouTube Data API and Google Cloud Translation API
 
 ## Requirements

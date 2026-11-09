@@ -4,6 +4,23 @@ import nodemailer from "nodemailer";
 
 export class OtpDeliveryError extends Error {}
 
+async function getProviderErrorDetail(response) {
+  try {
+    const body = await response.json();
+    const code = typeof body.code === "string" ? body.code : "";
+    const message = typeof body.message === "string" ? body.message : "";
+    const detail = [code, message]
+      .filter(Boolean)
+      .join(": ")
+      .replace(/[\u0000-\u001f\u007f]/g, " ")
+      .slice(0, 300);
+
+    return detail;
+  } catch {
+    return "";
+  }
+}
+
 export function generateOtp() {
   return crypto.randomInt(100000, 1000000).toString();
 }
@@ -92,8 +109,13 @@ export async function sendOtpEmail(
         );
       }
 
+      const detail = await getProviderErrorDetail(response);
       throw new OtpDeliveryError(
-        `Brevo rejected the email request (HTTP ${response.status}). Verify the API key and that EMAIL_FROM is a verified sender.`,
+        `Brevo rejected the email request (HTTP ${response.status}). ${
+          detail
+            ? `Brevo says: ${detail}`
+            : "Verify that EMAIL_FROM is a bare email address registered and verified as a sender in Brevo."
+        }`,
       );
     }
     return;

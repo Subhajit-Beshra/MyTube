@@ -235,3 +235,52 @@ test("Brevo 401 explains that the API v3 key needs to be corrected", async () =>
     else process.env.RESEND_API_KEY = previous.resendApiKey;
   }
 });
+
+test("Brevo 400 reports provider validation details without exposing credentials", async () => {
+  const previous = {
+    apiKey: process.env.BREVO_API_KEY,
+    from: process.env.EMAIL_FROM,
+    gmailUser: process.env.GMAIL_USER,
+    gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
+    resendApiKey: process.env.RESEND_API_KEY,
+  };
+  process.env.BREVO_API_KEY = "test-key-must-not-be-in-error";
+  process.env.EMAIL_FROM = "MyTube <mytube.sender@gmail.com>";
+  delete process.env.GMAIL_USER;
+  delete process.env.GMAIL_APP_PASSWORD;
+  delete process.env.RESEND_API_KEY;
+  try {
+    await assert.rejects(
+      sendOtpEmail(
+        "viewer@example.com",
+        "123456",
+        async () => ({
+          ok: false,
+          status: 400,
+          async json() {
+            return {
+              code: "invalid_parameter",
+              message: "Invalid sender email",
+            };
+          },
+        }),
+      ),
+      (error) => {
+        assert.match(error.message, /invalid_parameter: Invalid sender email/);
+        assert.doesNotMatch(error.message, /test-key-must-not-be-in-error/);
+        return true;
+      },
+    );
+  } finally {
+    if (previous.apiKey === undefined) delete process.env.BREVO_API_KEY;
+    else process.env.BREVO_API_KEY = previous.apiKey;
+    if (previous.from === undefined) delete process.env.EMAIL_FROM;
+    else process.env.EMAIL_FROM = previous.from;
+    if (previous.gmailUser === undefined) delete process.env.GMAIL_USER;
+    else process.env.GMAIL_USER = previous.gmailUser;
+    if (previous.gmailAppPassword === undefined) delete process.env.GMAIL_APP_PASSWORD;
+    else process.env.GMAIL_APP_PASSWORD = previous.gmailAppPassword;
+    if (previous.resendApiKey === undefined) delete process.env.RESEND_API_KEY;
+    else process.env.RESEND_API_KEY = previous.resendApiKey;
+  }
+});

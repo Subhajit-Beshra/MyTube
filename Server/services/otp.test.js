@@ -88,8 +88,8 @@ test("OTP email can use Brevo HTTPS API with a verified Gmail sender", async () 
       sender: { name: "MyTube", email: "mytube.sender@gmail.com" },
       to: [{ email: "viewer@example.com" }],
       subject: "Your MyTube verification code",
-      text: "Your MyTube verification code is 123456. It expires in 5 minutes.",
-      html: "<p>Your MyTube verification code is:</p><p style=\"font-size:24px;font-weight:bold;letter-spacing:4px\">123456</p><p>This code expires in 5 minutes.</p>",
+      textContent: "Your MyTube verification code is 123456. It expires in 5 minutes.",
+      htmlContent: "<p>Your MyTube verification code is:</p><p style=\"font-size:24px;font-weight:bold;letter-spacing:4px\">123456</p><p>This code expires in 5 minutes.</p>",
     });
   } finally {
     if (previous.apiKey === undefined) delete process.env.RESEND_API_KEY;

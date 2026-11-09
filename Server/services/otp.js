@@ -92,7 +92,9 @@ export async function sendOtpEmail(
             email: from,
           },
           to: [{ email }],
-          ...message,
+          subject: message.subject,
+          textContent: message.text,
+          htmlContent: message.html,
         }),
       });
     } catch (error) {

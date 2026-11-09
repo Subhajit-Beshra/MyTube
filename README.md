@@ -54,7 +54,8 @@ Set values as needed:
 
 | Variable | Required for | Example |
 | --- | --- | --- |
-| `NEXT_PUBLIC_API_URL` | Backend origin used by the Next.js same-origin API proxy | `http://localhost:5000` |
+| `NEXT_PUBLIC_API_URL` | Backend origin used by server-side API requests and as a proxy fallback | `http://localhost:5000` |
+| `BACKEND_API_URL` | Runtime backend origin for the Next.js same-origin API proxy | `http://localhost:5000` |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google sign-in button | Google OAuth client ID |
 | `YOUTUBE_API_KEY` | YouTube video search and recommendations | YouTube Data API v3 key |
 
@@ -93,9 +94,9 @@ npm run dev
 npm run dev
 ```
 
-The frontend is available at [http://localhost:3000](http://localhost:3000). Browser API calls go through the frontend's `/api/backend` rewrite so authentication cookies remain same-origin. The backend health endpoint is [http://localhost:5000/health](http://localhost:5000/health).
+The frontend is available at [http://localhost:3000](http://localhost:3000). Browser API calls go through the frontend's `/api/backend` route so authentication cookies remain same-origin. The backend health endpoint is [http://localhost:5000/health](http://localhost:5000/health).
 
-For Render, set the frontend service's `NEXT_PUBLIC_API_URL` to the backend service's HTTPS origin (for example, `https://mytube-api.onrender.com`) **before building**. Next.js records this URL in its rewrite configuration at build time. Set the backend service's `CLIENT_URL` to the exact deployed frontend origin (for example, `https://mytube.onrender.com`) so credentialed API requests are accepted. Then redeploy both services.
+For Render, set the frontend service's `BACKEND_API_URL` to the backend service's HTTPS origin (for example, `https://mytube-api.onrender.com`). This is read at runtime, so it does not need to be baked into the frontend build. Set the backend service's `CLIENT_URL` to the exact deployed frontend origin (for example, `https://mytube.onrender.com`). Redeploy the frontend after setting the variable.
 
 ## Channels and uploads
 

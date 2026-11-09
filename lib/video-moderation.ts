@@ -1,6 +1,9 @@
 import "server-only";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL =
+  process.env.BACKEND_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
 
 export async function filterAvailableVideos<T extends { _id: string }>(videos: T[]) {
   if (videos.length === 0) return { videos, warning: "" };

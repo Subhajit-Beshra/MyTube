@@ -45,6 +45,54 @@ export async function sendOtpEmail(
     return;
   }
 
+  const brevoApiKey = process.env.BREVO_API_KEY;
+  const from = process.env.EMAIL_FROM;
+  const message = {
+    subject: "Your MyTube verification code",
+    text: `Your MyTube verification code is ${otp}. It expires in 5 minutes.`,
+    html: `<p>Your MyTube verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p><p>This code expires in 5 minutes.</p>`,
+  };
+
+  if (brevoApiKey) {
+    if (!from) {
+      throw new OtpDeliveryError(
+        "EMAIL_FROM is required when using the Brevo email provider.",
+      );
+    }
+
+    let response;
+    try {
+      response = await fetchImpl("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "api-key": brevoApiKey,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: {
+            name: process.env.EMAIL_FROM_NAME || "MyTube",
+            email: from,
+          },
+          to: [{ email }],
+          ...message,
+        }),
+      });
+    } catch (error) {
+      throw new OtpDeliveryError(
+        "Could not send the verification email through Brevo. Check the backend's HTTPS connectivity and try again.",
+        { cause: error },
+      );
+    }
+
+    if (!response.ok) {
+      throw new OtpDeliveryError(
+        `Brevo rejected the email request (HTTP ${response.status}). Verify the API key and sender address.`,
+      );
+    }
+    return;
+  }
+
   const gmailUser = process.env.GMAIL_USER;
   const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
   if (gmailUser || gmailAppPassword) {
@@ -67,9 +115,7 @@ export async function sendOtpEmail(
       await transporter.sendMail({
         from: `MyTube <${gmailUser}>`,
         to: email,
-        subject: "Your MyTube verification code",
-        text: `Your MyTube verification code is ${otp}. It expires in 5 minutes.`,
-        html: `<p>Your MyTube verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p><p>This code expires in 5 minutes.</p>`,
+        ...message,
       });
       return;
     } catch (error) {
@@ -79,9 +125,7 @@ export async function sendOtpEmail(
       );
     }
   }
-
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
   if (!apiKey || !from) {
     throw new OtpDeliveryError("Email delivery is not configured.");
   }
@@ -97,9 +141,7 @@ export async function sendOtpEmail(
       body: JSON.stringify({
         from,
         to: [email],
-        subject: "Your MyTube verification code",
-        text: `Your MyTube verification code is ${otp}. It expires in 5 minutes.`,
-        html: `<p>Your MyTube verification code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p><p>This code expires in 5 minutes.</p>`,
+        ...message,
       }),
     });
   } catch (error) {

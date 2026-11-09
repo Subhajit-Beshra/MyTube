@@ -26,11 +26,14 @@ test("OTP email sends the code through the configured provider without returning
   const previous = {
     apiKey: process.env.RESEND_API_KEY,
     from: process.env.EMAIL_FROM,
+    fromName: process.env.EMAIL_FROM_NAME,
+    brevoApiKey: process.env.BREVO_API_KEY,
     gmailUser: process.env.GMAIL_USER,
     gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
   };
   delete process.env.GMAIL_USER;
   delete process.env.GMAIL_APP_PASSWORD;
+  delete process.env.BREVO_API_KEY;
   process.env.RESEND_API_KEY = "test-resend-key";
   process.env.EMAIL_FROM = "MyTube <noreply@example.com>";
   let request;
@@ -47,6 +50,56 @@ test("OTP email sends the code through the configured provider without returning
     else process.env.RESEND_API_KEY = previous.apiKey;
     if (previous.from === undefined) delete process.env.EMAIL_FROM;
     else process.env.EMAIL_FROM = previous.from;
+    if (previous.fromName === undefined) delete process.env.EMAIL_FROM_NAME;
+    else process.env.EMAIL_FROM_NAME = previous.fromName;
+    if (previous.brevoApiKey === undefined) delete process.env.BREVO_API_KEY;
+    else process.env.BREVO_API_KEY = previous.brevoApiKey;
+    if (previous.gmailUser === undefined) delete process.env.GMAIL_USER;
+    else process.env.GMAIL_USER = previous.gmailUser;
+    if (previous.gmailAppPassword === undefined) delete process.env.GMAIL_APP_PASSWORD;
+    else process.env.GMAIL_APP_PASSWORD = previous.gmailAppPassword;
+  }
+});
+
+test("OTP email can use Brevo HTTPS API with a verified Gmail sender", async () => {
+  const previous = {
+    apiKey: process.env.RESEND_API_KEY,
+    from: process.env.EMAIL_FROM,
+    fromName: process.env.EMAIL_FROM_NAME,
+    brevoApiKey: process.env.BREVO_API_KEY,
+    gmailUser: process.env.GMAIL_USER,
+    gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
+  };
+  process.env.BREVO_API_KEY = "test-brevo-key";
+  process.env.EMAIL_FROM = "mytube.sender@gmail.com";
+  process.env.EMAIL_FROM_NAME = "MyTube";
+  delete process.env.GMAIL_USER;
+  delete process.env.GMAIL_APP_PASSWORD;
+  delete process.env.RESEND_API_KEY;
+  let request;
+  try {
+    await sendOtpEmail("viewer@example.com", "123456", async (url, options) => {
+      request = { url, options };
+      return { ok: true };
+    });
+    assert.equal(request.url, "https://api.brevo.com/v3/smtp/email");
+    assert.equal(request.options.headers["api-key"], "test-brevo-key");
+    assert.deepEqual(JSON.parse(request.options.body), {
+      sender: { name: "MyTube", email: "mytube.sender@gmail.com" },
+      to: [{ email: "viewer@example.com" }],
+      subject: "Your MyTube verification code",
+      text: "Your MyTube verification code is 123456. It expires in 5 minutes.",
+      html: "<p>Your MyTube verification code is:</p><p style=\"font-size:24px;font-weight:bold;letter-spacing:4px\">123456</p><p>This code expires in 5 minutes.</p>",
+    });
+  } finally {
+    if (previous.apiKey === undefined) delete process.env.RESEND_API_KEY;
+    else process.env.RESEND_API_KEY = previous.apiKey;
+    if (previous.from === undefined) delete process.env.EMAIL_FROM;
+    else process.env.EMAIL_FROM = previous.from;
+    if (previous.fromName === undefined) delete process.env.EMAIL_FROM_NAME;
+    else process.env.EMAIL_FROM_NAME = previous.fromName;
+    if (previous.brevoApiKey === undefined) delete process.env.BREVO_API_KEY;
+    else process.env.BREVO_API_KEY = previous.brevoApiKey;
     if (previous.gmailUser === undefined) delete process.env.GMAIL_USER;
     else process.env.GMAIL_USER = previous.gmailUser;
     if (previous.gmailAppPassword === undefined) delete process.env.GMAIL_APP_PASSWORD;
@@ -58,9 +111,11 @@ test("OTP email can be delivered through Gmail SMTP using an app password", asyn
   const previous = {
     apiKey: process.env.RESEND_API_KEY,
     from: process.env.EMAIL_FROM,
+    brevoApiKey: process.env.BREVO_API_KEY,
     gmailUser: process.env.GMAIL_USER,
     gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
   };
+  delete process.env.BREVO_API_KEY;
   process.env.GMAIL_USER = "mytube.sender@gmail.com";
   process.env.GMAIL_APP_PASSWORD = "abcd efgh ijkl mnop";
   delete process.env.RESEND_API_KEY;
@@ -98,6 +153,8 @@ test("OTP email can be delivered through Gmail SMTP using an app password", asyn
     else process.env.RESEND_API_KEY = previous.apiKey;
     if (previous.from === undefined) delete process.env.EMAIL_FROM;
     else process.env.EMAIL_FROM = previous.from;
+    if (previous.brevoApiKey === undefined) delete process.env.BREVO_API_KEY;
+    else process.env.BREVO_API_KEY = previous.brevoApiKey;
     if (previous.gmailUser === undefined) delete process.env.GMAIL_USER;
     else process.env.GMAIL_USER = previous.gmailUser;
     if (previous.gmailAppPassword === undefined) delete process.env.GMAIL_APP_PASSWORD;
@@ -109,12 +166,14 @@ test("OTP email reports missing configuration and provider errors", async () => 
   const previous = {
     apiKey: process.env.RESEND_API_KEY,
     from: process.env.EMAIL_FROM,
+    brevoApiKey: process.env.BREVO_API_KEY,
     gmailUser: process.env.GMAIL_USER,
     gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
   };
   try {
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
+    delete process.env.BREVO_API_KEY;
     delete process.env.GMAIL_USER;
     delete process.env.GMAIL_APP_PASSWORD;
     await assert.rejects(
@@ -132,6 +191,8 @@ test("OTP email reports missing configuration and provider errors", async () => 
     else process.env.RESEND_API_KEY = previous.apiKey;
     if (previous.from === undefined) delete process.env.EMAIL_FROM;
     else process.env.EMAIL_FROM = previous.from;
+    if (previous.brevoApiKey === undefined) delete process.env.BREVO_API_KEY;
+    else process.env.BREVO_API_KEY = previous.brevoApiKey;
     if (previous.gmailUser === undefined) delete process.env.GMAIL_USER;
     else process.env.GMAIL_USER = previous.gmailUser;
     if (previous.gmailAppPassword === undefined) delete process.env.GMAIL_APP_PASSWORD;

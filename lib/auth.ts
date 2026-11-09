@@ -39,7 +39,18 @@ async function authRequest(
     },
   });
 
-  const data = await response.json();
+  const text = await response.text();
+
+  let data: AuthResponse;
+
+  try{
+    data = JSON.parse(text);
+  }catch{
+    console.error("Backend returned HTML instead of JSON:", text);
+    throw new Error(
+      `Server returned an invalid response (HTTP ${response.status}). Check your backend deployment.`
+    );
+  }
 
   if (!response.ok) {
     throw new Error(data.message || "Authentication failed.");

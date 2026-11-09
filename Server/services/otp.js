@@ -120,6 +120,9 @@ export async function sendOtpEmail(
         }`,
       );
     }
+    console.info("Brevo accepted the OTP email request.", {
+      status: response.status,
+    });
     return;
   }
 

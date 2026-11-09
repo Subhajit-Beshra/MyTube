@@ -122,7 +122,7 @@ Configure authorized origins and redirect settings in Google Cloud to match your
 
 ### Email OTP and trusted devices
 
-Email OTP uses Resend. Set `RESEND_API_KEY` and `EMAIL_FROM` in `Server/.env`, and verify the sender domain with Resend. OTP challenges expire after five minutes and are limited to five attempts. A trusted-device cookie lasts 30 days. Without email delivery configured, OTP-protected registration and sign-in cannot be completed.
+Email OTP can use Gmail SMTP at no domain cost. On the Gmail account that will send codes, enable 2-Step Verification and create an App Password in your Google Account security settings. Set `GMAIL_USER` to that Gmail address and `GMAIL_APP_PASSWORD` to the generated App Password in the backend service environment; do not use your regular Gmail password. If Gmail credentials are not set, the service can use Resend instead with `RESEND_API_KEY` and a verified sender in `EMAIL_FROM`. Do not enable `OTP_DEMO_MODE` in production because it logs codes instead of emailing them. OTP challenges expire after five minutes and are limited to five attempts. A trusted-device cookie lasts 30 days. Without valid email delivery configuration, OTP-protected registration and sign-in cannot be completed.
 
 ### YouTube search
 

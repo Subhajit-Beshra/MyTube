@@ -467,9 +467,9 @@ export default function MeetingRoom() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-3 text-white sm:p-5">
-      <div className="mx-auto max-w-[1800px] space-y-3">
-        <header className="flex flex-wrap items-center justify-between gap-3">
+    <main className="h-dvh overflow-hidden bg-slate-950 p-3 text-white sm:p-5">
+      <div className="mx-auto flex h-full min-h-0 max-w-[1800px] flex-col gap-3">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="font-bold">
               {meeting.title}
@@ -532,19 +532,21 @@ export default function MeetingRoom() {
             }
           }}
           data-lk-theme="default"
-          className="overflow-hidden rounded-xl"
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl"
         >
-          <div className="min-h-[65vh]">
+          <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
             <VideoConference />
           </div>
 
           <RoomAudioRenderer />
 
-          <LiveMeetingControls
-            meeting={meeting}
-            onLockChange={updateLock}
-            onEnd={endMeeting}
-          />
+          <div className="max-h-[22dvh] shrink-0 overflow-y-auto">
+            <LiveMeetingControls
+              meeting={meeting}
+              onLockChange={updateLock}
+              onEnd={endMeeting}
+            />
+          </div>
         </LiveKitRoom>
       </div>
     </main>

@@ -45,9 +45,13 @@ async function authRequest(
   try{
     data = JSON.parse(text);
   }catch{
-    console.error("Backend returned HTML instead of JSON:", text);
+    const contentType = response.headers.get("content-type") || "unknown";
+    console.error("Backend returned a non-JSON response:", {
+      status: response.status,
+      contentType,
+    });
     throw new Error(
-      `Server returned an invalid response (HTTP ${response.status}). Check your backend deployment.`
+      `The backend returned a non-JSON response (HTTP ${response.status}, ${contentType}). Check that the Render backend service is running and that the frontend BACKEND_API_URL points to its HTTPS URL.`
     );
   }
 

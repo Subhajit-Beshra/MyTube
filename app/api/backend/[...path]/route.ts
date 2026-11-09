@@ -23,8 +23,9 @@ async function proxyRequest(
 ) {
   const configuredApiUrl =
     process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    (process.env.NODE_ENV === "development" ? "http://localhost:5000" : "");
+    (process.env.NODE_ENV === "development"
+      ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+      : "");
 
   let destination: URL;
   try {

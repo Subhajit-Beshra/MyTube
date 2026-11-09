@@ -30,9 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function refreshUser() {
     try {
       const response = await getCurrentUser();
+      if (!response.user) {
+        throw new Error(response.message || "Your session could not be verified. Please sign in again.");
+      }
       setUser(response.user ?? null);
-    } catch {
+    } catch (error) {
       setUser(null);
+      throw error;
     } finally {
       setLoading(false);
     }

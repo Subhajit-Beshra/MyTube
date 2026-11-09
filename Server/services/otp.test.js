@@ -199,3 +199,39 @@ test("OTP email reports missing configuration and provider errors", async () => 
     else process.env.GMAIL_APP_PASSWORD = previous.gmailAppPassword;
   }
 });
+
+test("Brevo 401 explains that the API v3 key needs to be corrected", async () => {
+  const previous = {
+    apiKey: process.env.BREVO_API_KEY,
+    from: process.env.EMAIL_FROM,
+    gmailUser: process.env.GMAIL_USER,
+    gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
+    resendApiKey: process.env.RESEND_API_KEY,
+  };
+  process.env.BREVO_API_KEY = "invalid-test-key";
+  process.env.EMAIL_FROM = "mytube.sender@gmail.com";
+  delete process.env.GMAIL_USER;
+  delete process.env.GMAIL_APP_PASSWORD;
+  delete process.env.RESEND_API_KEY;
+  try {
+    await assert.rejects(
+      sendOtpEmail(
+        "viewer@example.com",
+        "123456",
+        async () => ({ ok: false, status: 401 }),
+      ),
+      /valid Brevo API v3 key/,
+    );
+  } finally {
+    if (previous.apiKey === undefined) delete process.env.BREVO_API_KEY;
+    else process.env.BREVO_API_KEY = previous.apiKey;
+    if (previous.from === undefined) delete process.env.EMAIL_FROM;
+    else process.env.EMAIL_FROM = previous.from;
+    if (previous.gmailUser === undefined) delete process.env.GMAIL_USER;
+    else process.env.GMAIL_USER = previous.gmailUser;
+    if (previous.gmailAppPassword === undefined) delete process.env.GMAIL_APP_PASSWORD;
+    else process.env.GMAIL_APP_PASSWORD = previous.gmailAppPassword;
+    if (previous.resendApiKey === undefined) delete process.env.RESEND_API_KEY;
+    else process.env.RESEND_API_KEY = previous.resendApiKey;
+  }
+});

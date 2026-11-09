@@ -86,8 +86,14 @@ export async function sendOtpEmail(
     }
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new OtpDeliveryError(
+          "Brevo authentication failed (HTTP 401). Set BREVO_API_KEY to a valid Brevo API v3 key in the backend service environment, then redeploy.",
+        );
+      }
+
       throw new OtpDeliveryError(
-        `Brevo rejected the email request (HTTP ${response.status}). Verify the API key and sender address.`,
+        `Brevo rejected the email request (HTTP ${response.status}). Verify the API key and that EMAIL_FROM is a verified sender.`,
       );
     }
     return;
